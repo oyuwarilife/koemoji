@@ -312,6 +312,35 @@
     font-size: 0.8rem;
   }
 
+  .api-guide-heading {
+    font-weight: 700;
+    color: var(--primary);
+    margin: 12px 0 4px;
+    font-size: 0.82rem;
+  }
+
+  .api-guide-heading:first-child {
+    margin-top: 0;
+  }
+
+  .api-guide-content > .api-guide-desc {
+    color: var(--text-light);
+    font-size: 0.78rem;
+    margin: 4px 0;
+  }
+
+  .api-guide-tips {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.78rem;
+    line-height: 1.8;
+  }
+
+  .api-guide-tips > p {
+    margin-bottom: 6px;
+  }
+
   .api-guide-note {
     margin-top: 8px;
     padding-top: 8px;
@@ -879,16 +908,37 @@
           </div>
           <div class="key-status empty" id="geminiStatus">未設定</div>
           <details class="api-guide">
-            <summary>Gemini APIキーの取得方法</summary>
+            <summary>Gemini APIキーの取得方法（初めての方向け）</summary>
             <div class="api-guide-content">
+              <p class="api-guide-heading">Step 1: Google AI Studio を開く</p>
               <ol>
-                <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> にアクセス</li>
-                <li>Googleアカウントでログイン</li>
-                <li>「APIキーを作成」をクリック</li>
-                <li>表示されたキー（<code>AIza...</code> で始まる文字列）をコピー</li>
-                <li>上の入力欄に貼り付けて「保存」</li>
+                <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">https://aistudio.google.com/apikey</a> にアクセス</li>
+                <li>お持ちの<strong>Googleアカウント</strong>（Gmailなど）でログインします</li>
               </ol>
-              <p class="api-guide-note">無料枠あり。クレジットカード登録なしで使えます。</p>
+
+              <p class="api-guide-heading">Step 2: プロジェクトを作成する（初回のみ）</p>
+              <p class="api-guide-desc">初めての場合、Google Cloud のプロジェクトが必要です。難しくないので安心してください。</p>
+              <ol>
+                <li>「<strong>APIキーを作成</strong>」ボタンをクリック</li>
+                <li>「新しいプロジェクトで作成」を選択します</li>
+                <li>利用規約が出たら確認して「同意する」をクリック</li>
+                <li>自動でプロジェクトが作られ、APIキーが表示されます</li>
+              </ol>
+              <p class="api-guide-desc">※ プロジェクト名は自動で付きます。変更しなくてOKです。</p>
+
+              <p class="api-guide-heading">Step 3: キーをコピーして貼り付け</p>
+              <ol>
+                <li>表示されたキー（<code>AIza...</code> で始まる長い文字列）の横にある<strong>コピーボタン</strong>をクリック</li>
+                <li>このページに戻って、上の入力欄に<strong>貼り付け</strong>（Ctrl+V）</li>
+                <li>「<strong>保存</strong>」ボタンを押せば完了です</li>
+              </ol>
+
+              <div class="api-guide-tips">
+                <p><strong>よくある質問</strong></p>
+                <p><strong>Q. 料金はかかる？</strong><br>→ 無料枠が十分にあります。個人利用なら基本無料です。クレジットカードの登録も不要です。</p>
+                <p><strong>Q. キーは安全？</strong><br>→ キーはこのブラウザにだけ保存されます。外部サーバーには一切送信されません。</p>
+                <p><strong>Q. キーを間違えたら？</strong><br>→ 新しいキーを入力して「保存」すれば上書きされます。</p>
+              </div>
             </div>
           </details>
         </div>
