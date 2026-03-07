@@ -4,110 +4,150 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>こえもじ - 音声→記事変換ツール</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #e0e7ff;
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --text: #1e293b;
-    --text-light: #64748b;
-    --border: #e2e8f0;
-    --success: #10b981;
-    --error: #ef4444;
-    --warning: #f59e0b;
-    --radius: 12px;
+    --primary: #e8736c;
+    --primary-dark: #d4564e;
+    --primary-light: #fff0ee;
+    --accent: #f4a86c;
+    --bg-from: #fdf6f0;
+    --bg-to: #f0e6f6;
+    --card: rgba(255, 255, 255, 0.75);
+    --card-border: rgba(255, 255, 255, 0.6);
+    --text: #3d2c2c;
+    --text-light: #8c7575;
+    --border: #edddd6;
+    --success: #5cb88a;
+    --error: #e8736c;
+    --warning: #f4a86c;
+    --radius: 16px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
-    background: var(--bg);
+    font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+    background: linear-gradient(135deg, var(--bg-from) 0%, #fef4ed 30%, #f5eef8 60%, var(--bg-to) 100%);
+    background-attachment: fixed;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.7;
     min-height: 100vh;
   }
 
   .container {
-    max-width: 800px;
+    max-width: 720px;
     margin: 0 auto;
     padding: 20px;
   }
 
+  /* Header */
   header {
     text-align: center;
-    padding: 30px 0 20px;
+    padding: 40px 0 24px;
   }
 
   header h1 {
-    font-size: 1.6rem;
+    font-size: 2.2rem;
     font-weight: 700;
-    color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  header h1 svg {
+    -webkit-text-fill-color: initial;
+    filter: drop-shadow(0 2px 4px rgba(232, 115, 108, 0.3));
   }
 
   header p {
     color: var(--text-light);
-    font-size: 0.9rem;
-    margin-top: 4px;
+    font-size: 0.95rem;
+    margin-top: 6px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
   }
 
+  /* Cards - glassmorphism */
   .card {
     background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: var(--radius);
-    border: 1px solid var(--border);
-    padding: 24px;
-    margin-bottom: 16px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 24px rgba(180, 140, 130, 0.08), 0 1px 3px rgba(180, 140, 130, 0.06);
+    padding: 28px;
+    margin-bottom: 20px;
+    animation: fadeSlideUp 0.5s ease both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0s; }
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.16s; }
+  .card:nth-child(4) { animation-delay: 0.24s; }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .card-title {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 18px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    color: var(--text);
   }
 
   .step-badge {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
     color: white;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 700;
+    box-shadow: 0 2px 8px rgba(232, 115, 108, 0.25);
   }
 
   /* Settings toggle */
   .settings-toggle {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   .settings-toggle button {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 0.85rem;
+    background: var(--card);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    font-family: inherit;
     color: var(--text-light);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   }
 
   .settings-toggle button:hover {
     border-color: var(--primary);
     color: var(--primary);
+    box-shadow: 0 2px 12px rgba(232, 115, 108, 0.15);
   }
 
   .settings-panel {
@@ -116,6 +156,7 @@
 
   .settings-panel.open {
     display: block;
+    animation: fadeSlideUp 0.4s ease both;
   }
 
   /* Form elements */
@@ -123,7 +164,7 @@
     display: block;
     font-size: 0.85rem;
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     color: var(--text);
   }
 
@@ -132,20 +173,21 @@
   select,
   textarea {
     width: 100%;
-    padding: 10px 12px;
+    padding: 11px 14px;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.9rem;
     font-family: inherit;
-    transition: border-color 0.2s;
-    background: var(--card);
+    transition: all 0.3s;
+    background: rgba(255,255,255,0.6);
     color: var(--text);
   }
 
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(232, 115, 108, 0.12);
+    background: rgba(255,255,255,0.9);
   }
 
   .form-row {
@@ -161,7 +203,7 @@
   .api-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 14px;
   }
 
   .api-key-row {
@@ -176,26 +218,28 @@
   }
 
   .btn-save-key {
-    padding: 10px 14px;
+    padding: 11px 16px;
     background: var(--primary-light);
     color: var(--primary);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.8rem;
+    font-family: inherit;
     cursor: pointer;
     white-space: nowrap;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: all 0.3s;
   }
 
   .btn-save-key:hover {
     background: var(--primary);
     color: white;
+    box-shadow: 0 2px 10px rgba(232, 115, 108, 0.25);
   }
 
   .key-status {
     font-size: 0.75rem;
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   .key-status.saved { color: var(--success); }
@@ -205,16 +249,18 @@
   .upload-area {
     border: 2px dashed var(--border);
     border-radius: var(--radius);
-    padding: 40px 20px;
+    padding: 44px 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
     position: relative;
+    background: rgba(255,255,255,0.3);
   }
 
   .upload-area:hover, .upload-area.dragover {
     border-color: var(--primary);
     background: var(--primary-light);
+    transform: scale(1.01);
   }
 
   .upload-area input[type="file"] {
@@ -226,7 +272,7 @@
 
   .upload-icon {
     font-size: 2.5rem;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   .upload-text {
@@ -242,14 +288,15 @@
     display: none;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 14px 18px;
     background: var(--primary-light);
-    border-radius: 8px;
-    margin-top: 12px;
+    border-radius: 10px;
+    margin-top: 14px;
   }
 
   .file-info.show {
     display: flex;
+    animation: fadeSlideUp 0.3s ease both;
   }
 
   .file-info .name {
@@ -268,40 +315,52 @@
     border: none;
     color: var(--error);
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     padding: 0 4px;
+    transition: transform 0.2s;
+  }
+
+  .file-info .remove:hover {
+    transform: scale(1.2);
   }
 
   /* Recording */
   .record-section {
     text-align: center;
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 18px;
+    padding-top: 18px;
     border-top: 1px solid var(--border);
   }
 
   .record-or {
     font-size: 0.8rem;
     color: var(--text-light);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   .btn-record {
-    padding: 12px 28px;
+    padding: 12px 30px;
     border: none;
-    border-radius: 24px;
+    border-radius: 28px;
     font-size: 0.9rem;
     font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
     display: inline-flex;
     align-items: center;
     gap: 8px;
   }
 
   .btn-record.idle {
-    background: var(--error);
+    background: linear-gradient(135deg, var(--primary), #e8918b);
     color: white;
+    box-shadow: 0 3px 12px rgba(232, 115, 108, 0.3);
+  }
+
+  .btn-record.idle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 18px rgba(232, 115, 108, 0.35);
   }
 
   .btn-record.recording {
@@ -311,15 +370,16 @@
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    0%, 100% { opacity: 1; box-shadow: 0 3px 12px rgba(61, 44, 44, 0.3); }
+    50% { opacity: 0.8; box-shadow: 0 3px 20px rgba(61, 44, 44, 0.15); }
   }
 
   .record-time {
     font-size: 0.85rem;
     color: var(--text-light);
-    margin-top: 8px;
+    margin-top: 10px;
     display: none;
+    font-variant-numeric: tabular-nums;
   }
 
   .record-time.show { display: block; }
@@ -327,58 +387,68 @@
   /* Buttons */
   .btn-primary {
     width: 100%;
-    padding: 14px;
-    background: var(--primary);
+    padding: 15px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
     color: white;
     border: none;
     border-radius: var(--radius);
     font-size: 1rem;
     font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    box-shadow: 0 3px 14px rgba(232, 115, 108, 0.25);
+    letter-spacing: 0.02em;
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(232, 115, 108, 0.35);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   .btn-primary:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
+    box-shadow: none;
   }
 
   .btn-secondary {
-    padding: 8px 16px;
+    padding: 9px 18px;
     background: var(--primary-light);
     color: var(--primary);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.85rem;
     font-weight: 500;
+    font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
   }
 
   .btn-secondary:hover {
     background: var(--primary);
     color: white;
+    box-shadow: 0 2px 10px rgba(232, 115, 108, 0.2);
   }
 
   /* Progress */
   .progress-bar {
     display: none;
-    margin-top: 12px;
+    margin-top: 14px;
   }
 
   .progress-bar.show { display: block; }
 
   .progress-track {
-    height: 6px;
+    height: 5px;
     background: var(--border);
     border-radius: 3px;
     overflow: hidden;
@@ -386,7 +456,7 @@
 
   .progress-fill {
     height: 100%;
-    background: var(--primary);
+    background: linear-gradient(90deg, var(--primary), var(--accent));
     border-radius: 3px;
     transition: width 0.3s;
     width: 0%;
@@ -405,7 +475,7 @@
   .progress-text {
     font-size: 0.8rem;
     color: var(--text-light);
-    margin-top: 6px;
+    margin-top: 8px;
     text-align: center;
   }
 
@@ -414,7 +484,10 @@
     display: none;
   }
 
-  .transcript-area.show { display: block; }
+  .transcript-area.show {
+    display: block;
+    animation: fadeSlideUp 0.5s ease both;
+  }
 
   .transcript-area textarea {
     min-height: 150px;
@@ -433,17 +506,29 @@
     display: none;
   }
 
-  .article-options.show { display: block; }
+  .article-options.show {
+    display: block;
+    animation: fadeSlideUp 0.5s ease both;
+  }
 
   .option-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 14px;
   }
 
   @media (max-width: 600px) {
     .option-grid {
       grid-template-columns: 1fr;
+    }
+    header h1 {
+      font-size: 1.8rem;
+    }
+    .container {
+      padding: 16px;
+    }
+    .card {
+      padding: 22px;
     }
   }
 
@@ -452,14 +537,18 @@
     display: none;
   }
 
-  .result-area.show { display: block; }
+  .result-area.show {
+    display: block;
+    animation: fadeSlideUp 0.5s ease both;
+  }
 
   .result-content {
-    background: #f1f5f9;
-    border-radius: 8px;
-    padding: 20px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
     font-size: 0.9rem;
-    line-height: 1.8;
+    line-height: 1.9;
     white-space: pre-wrap;
     max-height: 500px;
     overflow-y: auto;
@@ -468,30 +557,34 @@
   .result-actions {
     display: flex;
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 14px;
     flex-wrap: wrap;
   }
 
   /* Status messages */
   .status-msg {
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 11px 16px;
+    border-radius: 10px;
     font-size: 0.85rem;
-    margin-top: 12px;
+    margin-top: 14px;
     display: none;
   }
 
-  .status-msg.show { display: block; }
+  .status-msg.show {
+    display: block;
+    animation: fadeSlideUp 0.3s ease both;
+  }
   .status-msg.error { background: #fef2f2; color: var(--error); border: 1px solid #fecaca; }
   .status-msg.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
-  .status-msg.info { background: var(--primary-light); color: var(--primary); border: 1px solid #c7d2fe; }
+  .status-msg.info { background: var(--primary-light); color: var(--primary); border: 1px solid #f5ccc8; }
 
   /* Footer */
   footer {
     text-align: center;
-    padding: 20px;
+    padding: 28px 20px;
     color: var(--text-light);
     font-size: 0.75rem;
+    letter-spacing: 0.03em;
   }
 
   /* Prompt template */
@@ -502,15 +595,25 @@
     border: none;
     cursor: pointer;
     text-decoration: underline;
-    margin-top: 8px;
+    text-underline-offset: 3px;
+    margin-top: 10px;
+    font-family: inherit;
+    transition: opacity 0.2s;
+  }
+
+  .prompt-toggle:hover {
+    opacity: 0.7;
   }
 
   .prompt-area {
     display: none;
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
-  .prompt-area.show { display: block; }
+  .prompt-area.show {
+    display: block;
+    animation: fadeSlideUp 0.3s ease both;
+  }
 
   .prompt-area textarea {
     min-height: 100px;
@@ -523,7 +626,7 @@
 <div class="container">
   <header>
     <h1>
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#hgrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><defs><linearGradient id="hgrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e8736c"/><stop offset="100%" stop-color="#f4a86c"/></linearGradient></defs><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       こえもじ
     </h1>
     <p>声を文字に、文字を記事に。</p>
@@ -590,7 +693,7 @@
     <div class="upload-area" id="uploadArea">
       <input type="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.ogg,.webm,.mp4" id="fileInput">
       <div class="upload-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d4a89a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       </div>
       <div class="upload-text">
         <strong>クリックまたはドラッグ&ドロップ</strong><br>
