@@ -909,11 +909,6 @@ fileInput.addEventListener('change', e => {
 });
 
 function handleFile(file) {
-  const maxSize = 25 * 1024 * 1024;
-  if (file.size > maxSize) {
-    showStatus('transcribeStatus', 'ファイルサイズが25MBを超えています', 'error');
-    return;
-  }
   audioFile = file;
   document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileSize').textContent = formatSize(file.size);
@@ -997,6 +992,11 @@ async function transcribe() {
     return;
   }
   if (!audioFile) return;
+
+  if (engine === 'openai' && audioFile.size > 25 * 1024 * 1024) {
+    showStatus('transcribeStatus', 'Whisperは最大25MBです。Geminiに切り替えるか、ファイルを小さくしてください', 'error');
+    return;
+  }
 
   const btn = document.getElementById('transcribeBtn');
   btn.disabled = true;
