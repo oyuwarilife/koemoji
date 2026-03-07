@@ -7,7 +7,7 @@
 ## 機能
 
 - **音声入力**: ファイルアップロード（ドラッグ&ドロップ）/ ブラウザ録音 / 動画ファイル対応
-- **文字起こし**: OpenAI Whisper API（日本語対応）
+- **文字起こし**: Gemini API（日本語対応・大容量ファイルOK）
 - **記事化**: 3つのAIから選択可能
   - Gemini
   - OpenAI (GPT)
@@ -27,12 +27,12 @@
 
 | 用途 | 必要なキー |
 |------|-----------|
-| 文字起こし | OpenAI APIキー（必須） |
+| 文字起こし | Gemini APIキー（必須） |
 | 記事化 | Gemini / OpenAI / Claude のいずれか |
 
 ## 対応ファイル形式
 
-MP3, WAV, M4A, OGG, WebM, MP4（最大25MB）
+MP3, WAV, M4A, OGG, WebM, MP4
 
 ## プライバシー
 
