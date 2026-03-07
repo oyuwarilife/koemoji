@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>こえもじ - 音声→記事変換ツール</title>
+<style>
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #e0e7ff;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  header {
+    text-align: center;
+    padding: 30px 0 20px;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  header p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-badge {
+    background: var(--primary);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* Settings toggle */
+  .settings-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .settings-toggle button {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .settings-toggle button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .settings-panel {
+    display: none;
+  }
+
+  .settings-panel.open {
+    display: block;
+  }
+
+  /* Form elements */
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  input[type="password"],
+  input[type="text"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    background: var(--card);
+    color: var(--text);
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .form-row {
+    margin-bottom: 14px;
+  }
+
+  .form-hint {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+
+  .api-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .api-key-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .api-key-row .form-row {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  .btn-save-key {
+    padding: 10px 14px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .btn-save-key:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  .key-status {
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }
+
+  .key-status.saved { color: var(--success); }
+  .key-status.empty { color: var(--text-light); }
+
+  /* Audio upload */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  .upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .upload-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+  }
+
+  .upload-text {
+    font-size: 0.9rem;
+    color: var(--text-light);
+  }
+
+  .upload-text strong {
+    color: var(--primary);
+  }
+
+  .file-info {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--primary-light);
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+
+  .file-info.show {
+    display: flex;
+  }
+
+  .file-info .name {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .file-info .size {
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  .file-info .remove {
+    background: none;
+    border: none;
+    color: var(--error);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 4px;
+  }
+
+  /* Recording */
+  .record-section {
+    text-align: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .record-or {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 12px;
+  }
+
+  .btn-record {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-record.idle {
+    background: var(--error);
+    color: white;
+  }
+
+  .btn-record.recording {
+    background: var(--text);
+    color: white;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .record-time {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 8px;
+    display: none;
+  }
+
+  .record-time.show { display: block; }
+
+  /* Buttons */
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    padding: 8px 16px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  /* Progress */
+  .progress-bar {
+    display: none;
+    margin-top: 12px;
+  }
+
+  .progress-bar.show { display: block; }
+
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 3px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  .progress-fill.indeterminate {
+    width: 30%;
+    animation: indeterminate 1.5s infinite;
+  }
+
+  @keyframes indeterminate {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* Transcript area */
+  .transcript-area {
+    display: none;
+  }
+
+  .transcript-area.show { display: block; }
+
+  .transcript-area textarea {
+    min-height: 150px;
+    resize: vertical;
+  }
+
+  .transcript-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  /* Article options */
+  .article-options {
+    display: none;
+  }
+
+  .article-options.show { display: block; }
+
+  .option-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .option-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Result */
+  .result-area {
+    display: none;
+  }
+
+  .result-area.show { display: block; }
+
+  .result-content {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Status messages */
+  .status-msg {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .status-msg.show { display: block; }
+  .status-msg.error { background: #fef2f2; color: var(--error); border: 1px solid #fecaca; }
+  .status-msg.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+  .status-msg.info { background: var(--primary-light); color: var(--primary); border: 1px solid #c7d2fe; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 0.75rem;
+  }
+
+  /* Prompt template */
+  .prompt-toggle {
+    font-size: 0.8rem;
+    color: var(--primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 8px;
+  }
+
+  .prompt-area {
+    display: none;
+    margin-top: 8px;
+  }
+
+  .prompt-area.show { display: block; }
+
+  .prompt-area textarea {
+    min-height: 100px;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      こえもじ
+    </h1>
+    <p>声を文字に、文字を記事に。</p>
+  </header>
+
+  <!-- Settings -->
+  <div class="settings-toggle">
+    <button onclick="toggleSettings()" id="settingsBtn">API設定</button>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="card">
+      <div class="card-title">APIキー設定</div>
+      <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 14px;">
+        キーはブラウザのlocalStorageに保存されます（サーバーには送信されません）
+      </p>
+      <div class="api-grid">
+        <!-- OpenAI -->
+        <div>
+          <div class="api-key-row">
+            <div class="form-row">
+              <label>OpenAI APIキー <span style="font-size:0.75rem; color:var(--text-light)">(文字起こし + 記事化)</span></label>
+              <input type="password" id="openaiKey" placeholder="sk-...">
+            </div>
+            <button class="btn-save-key" onclick="saveKey('openai')">保存</button>
+          </div>
+          <div class="key-status empty" id="openaiStatus">未設定</div>
+        </div>
+
+        <!-- Claude -->
+        <div>
+          <div class="api-key-row">
+            <div class="form-row">
+              <label>Claude APIキー <span style="font-size:0.75rem; color:var(--text-light)">(記事化)</span></label>
+              <input type="password" id="claudeKey" placeholder="sk-ant-...">
+            </div>
+            <button class="btn-save-key" onclick="saveKey('claude')">保存</button>
+          </div>
+          <div class="key-status empty" id="claudeStatus">未設定</div>
+        </div>
+
+        <!-- Gemini -->
+        <div>
+          <div class="api-key-row">
+            <div class="form-row">
+              <label>Gemini APIキー <span style="font-size:0.75rem; color:var(--text-light)">(記事化)</span></label>
+              <input type="password" id="geminiKey" placeholder="AIza...">
+            </div>
+            <button class="btn-save-key" onclick="saveKey('gemini')">保存</button>
+          </div>
+          <div class="key-status empty" id="geminiStatus">未設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Audio Input -->
+  <div class="card">
+    <div class="card-title">
+      <span class="step-badge">1</span>
+      音声を入力
+    </div>
+
+    <div class="upload-area" id="uploadArea">
+      <input type="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.ogg,.webm,.mp4" id="fileInput">
+      <div class="upload-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div class="upload-text">
+        <strong>クリックまたはドラッグ&ドロップ</strong><br>
+        MP3, WAV, M4A, OGG, WebM, MP4 対応（最大25MB）
+      </div>
+    </div>
+
+    <div class="file-info" id="fileInfo">
+      <span class="name" id="fileName"></span>
+      <span class="size" id="fileSize"></span>
+      <button class="remove" onclick="removeFile()" title="削除">&times;</button>
+    </div>
+
+    <div class="record-section">
+      <div class="record-or">または、その場で録音</div>
+      <button class="btn-record idle" id="recordBtn" onclick="toggleRecording()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
+        録音開始
+      </button>
+      <div class="record-time" id="recordTime">00:00</div>
+    </div>
+
+    <div class="progress-bar" id="transcribeProgress">
+      <div class="progress-track"><div class="progress-fill indeterminate" id="transcribeFill"></div></div>
+      <div class="progress-text" id="transcribeText">文字起こし中...</div>
+    </div>
+
+    <div class="status-msg" id="transcribeStatus"></div>
+
+    <div style="margin-top: 16px;">
+      <button class="btn-primary" id="transcribeBtn" onclick="transcribe()" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+        文字起こしする
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 2: Transcript -->
+  <div class="card transcript-area" id="transcriptArea">
+    <div class="card-title">
+      <span class="step-badge">2</span>
+      文字起こし結果
+    </div>
+    <div class="transcript-header">
+      <label style="margin-bottom:0">テキストを編集できます</label>
+      <button class="btn-secondary" onclick="copyText('transcriptText')">コピー</button>
+    </div>
+    <textarea id="transcriptText" rows="8" placeholder="文字起こし結果がここに表示されます..."></textarea>
+  </div>
+
+  <!-- Step 3: Article Generation -->
+  <div class="card article-options" id="articleOptions">
+    <div class="card-title">
+      <span class="step-badge">3</span>
+      記事を生成
+    </div>
+
+    <div class="option-grid">
+      <div class="form-row">
+        <label>使用するAI</label>
+        <select id="llmSelect">
+          <option value="gemini">Gemini</option>
+          <option value="openai">OpenAI (GPT)</option>
+          <option value="claude">Claude</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>記事の形式</label>
+        <select id="formatSelect">
+          <option value="blog">ブログ記事</option>
+          <option value="note">note記事</option>
+          <option value="summary">要約・まとめ</option>
+          <option value="sns">SNS投稿用</option>
+          <option value="minutes">議事録</option>
+          <option value="custom">カスタム</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top: 12px;">
+      <label>追加の指示（任意）</label>
+      <input type="text" id="extraInstruction" placeholder="例: 見出しを3つ入れて、です・ます調で">
+    </div>
+
+    <button class="prompt-toggle" onclick="togglePrompt()">プロンプトを確認・編集</button>
+    <div class="prompt-area" id="promptArea">
+      <textarea id="promptText"></textarea>
+    </div>
+
+    <div class="progress-bar" id="articleProgress">
+      <div class="progress-track"><div class="progress-fill indeterminate" id="articleFill"></div></div>
+      <div class="progress-text" id="articleProgressText">記事を生成中...</div>
+    </div>
+
+    <div class="status-msg" id="articleStatus"></div>
+
+    <div style="margin-top: 16px;">
+      <button class="btn-primary" id="articleBtn" onclick="generateArticle()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        記事を生成する
+      </button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="card result-area" id="resultArea">
+    <div class="card-title">
+      <span class="step-badge">4</span>
+      生成結果
+    </div>
+    <div class="result-content" id="resultContent"></div>
+    <div class="result-actions">
+      <button class="btn-secondary" onclick="copyText('resultContent')">コピー</button>
+      <button class="btn-secondary" onclick="downloadResult()">ダウンロード (.md)</button>
+      <button class="btn-secondary" onclick="regenerate()">再生成</button>
+    </div>
+  </div>
+
+  <footer>
+    こえもじ &mdash; APIキーはブラウザ内にのみ保存されます
+  </footer>
+</div>
+
+<script>
+// ============================================
+// State
+// ============================================
+let audioFile = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordingTimer = null;
+let recordingSeconds = 0;
+let isRecording = false;
+
+// ============================================
+// API Key Management
+// ============================================
+function initKeys() {
+  ['openai', 'claude', 'gemini'].forEach(provider => {
+    const key = localStorage.getItem(`vta_${provider}_key`) || '';
+    const input = document.getElementById(`${provider}Key`);
+    const status = document.getElementById(`${provider}Status`);
+    if (key) {
+      input.value = key;
+      status.textContent = '設定済み';
+      status.className = 'key-status saved';
+    }
+  });
+}
+
+function saveKey(provider) {
+  const input = document.getElementById(`${provider}Key`);
+  const status = document.getElementById(`${provider}Status`);
+  const key = input.value.trim();
+  if (key) {
+    localStorage.setItem(`vta_${provider}_key`, key);
+    status.textContent = '保存しました';
+    status.className = 'key-status saved';
+  } else {
+    localStorage.removeItem(`vta_${provider}_key`);
+    status.textContent = '未設定';
+    status.className = 'key-status empty';
+  }
+}
+
+function getKey(provider) {
+  return localStorage.getItem(`vta_${provider}_key`) || '';
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('open');
+  document.getElementById('settingsBtn').textContent =
+    panel.classList.contains('open') ? 'API設定を閉じる' : 'API設定';
+}
+
+// ============================================
+// File Upload
+// ============================================
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+
+uploadArea.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  if (e.dataTransfer.files.length) {
+    handleFile(e.dataTransfer.files[0]);
+  }
+});
+
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) {
+    handleFile(e.target.files[0]);
+  }
+});
+
+function handleFile(file) {
+  const maxSize = 25 * 1024 * 1024;
+  if (file.size > maxSize) {
+    showStatus('transcribeStatus', 'ファイルサイズが25MBを超えています', 'error');
+    return;
+  }
+  audioFile = file;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = formatSize(file.size);
+  document.getElementById('fileInfo').classList.add('show');
+  document.getElementById('transcribeBtn').disabled = false;
+  hideStatus('transcribeStatus');
+}
+
+function removeFile() {
+  audioFile = null;
+  fileInput.value = '';
+  document.getElementById('fileInfo').classList.remove('show');
+  document.getElementById('transcribeBtn').disabled = true;
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+// ============================================
+// Recording
+// ============================================
+async function toggleRecording() {
+  const btn = document.getElementById('recordBtn');
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      recordedChunks = [];
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+        audioFile = new File([blob], `recording_${Date.now()}.webm`, { type: 'audio/webm' });
+        document.getElementById('fileName').textContent = audioFile.name;
+        document.getElementById('fileSize').textContent = formatSize(audioFile.size);
+        document.getElementById('fileInfo').classList.add('show');
+        document.getElementById('transcribeBtn').disabled = false;
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      btn.className = 'btn-record recording';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> 録音停止';
+      recordingSeconds = 0;
+      document.getElementById('recordTime').classList.add('show');
+      updateRecordTime();
+      recordingTimer = setInterval(updateRecordTime, 1000);
+    } catch (err) {
+      showStatus('transcribeStatus', 'マイクへのアクセスが拒否されました', 'error');
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.className = 'btn-record idle';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg> 録音開始';
+    clearInterval(recordingTimer);
+  }
+}
+
+function updateRecordTime() {
+  recordingSeconds++;
+  const m = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
+  const s = String(recordingSeconds % 60).padStart(2, '0');
+  document.getElementById('recordTime').textContent = `${m}:${s}`;
+}
+
+// ============================================
+// Transcription (Whisper API)
+// ============================================
+async function transcribe() {
+  const openaiKey = getKey('openai');
+  if (!openaiKey) {
+    showStatus('transcribeStatus', 'OpenAI APIキーを設定してください（文字起こしに必要です）', 'error');
+    document.getElementById('settingsPanel').classList.add('open');
+    return;
+  }
+  if (!audioFile) return;
+
+  const btn = document.getElementById('transcribeBtn');
+  btn.disabled = true;
+  document.getElementById('transcribeProgress').classList.add('show');
+  hideStatus('transcribeStatus');
+
+  try {
+    const formData = new FormData();
+    formData.append('file', audioFile);
+    formData.append('model', 'whisper-1');
+    formData.append('language', 'ja');
+    formData.append('response_format', 'text');
+
+    const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${openaiKey}` },
+      body: formData
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API Error: ${res.status}`);
+    }
+
+    const text = await res.text();
+    document.getElementById('transcriptText').value = text;
+    document.getElementById('transcriptArea').classList.add('show');
+    document.getElementById('articleOptions').classList.add('show');
+    updatePrompt();
+    showStatus('transcribeStatus', '文字起こし完了', 'success');
+  } catch (err) {
+    showStatus('transcribeStatus', `エラー: ${err.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('transcribeProgress').classList.remove('show');
+  }
+}
+
+// ============================================
+// Article Generation
+// ============================================
+const PROMPTS = {
+  blog: `以下の文字起こしテキストを、読みやすいブログ記事に変換してください。
+
+要件:
+- 適切な見出し（##, ###）をつける
+- 話し言葉を自然な書き言葉に整える
+- 段落を適切に分ける
+- 重要なポイントを強調する
+- 冗長な部分は簡潔にまとめる`,
+
+  note: `以下の文字起こしテキストを、note記事に変換してください。
+
+要件:
+- タイトルをつける（読者が読みたくなるもの）
+- 導入文で読者の共感を得る
+- 見出し（##）で内容を整理
+- 体験ベースの語り口を活かす
+- 最後にまとめ or 読者への問いかけ`,
+
+  summary: `以下の文字起こしテキストを、要約・まとめに変換してください。
+
+要件:
+- 箇条書きで要点を整理
+- 重要度の高い順に並べる
+- 具体的な数値やキーワードは残す
+- 全体の3分の1程度の分量に`,
+
+  sns: `以下の文字起こしテキストから、SNS投稿を複数作成してください。
+
+要件:
+- 1投稿140文字以内（X向け）
+- 3〜5パターン作成
+- 読者が反応したくなるフック
+- 具体的なエピソードを抽出`,
+
+  minutes: `以下の文字起こしテキストを、議事録に変換してください。
+
+要件:
+- 日時・参加者（わかれば）
+- 議題ごとに整理
+- 決定事項を明確に
+- TODO・次のアクションを抽出
+- 箇条書きで簡潔に`,
+
+  custom: `以下の文字起こしテキストを、指定された形式で記事に変換してください。`
+};
+
+function updatePrompt() {
+  const format = document.getElementById('formatSelect').value;
+  document.getElementById('promptText').value = PROMPTS[format] || PROMPTS.blog;
+}
+
+document.getElementById('formatSelect').addEventListener('change', updatePrompt);
+
+function togglePrompt() {
+  document.getElementById('promptArea').classList.toggle('show');
+}
+
+async function generateArticle() {
+  const llm = document.getElementById('llmSelect').value;
+  const key = getKey(llm);
+  if (!key) {
+    showStatus('articleStatus', `${llm.charAt(0).toUpperCase() + llm.slice(1)} APIキーを設定してください`, 'error');
+    document.getElementById('settingsPanel').classList.add('open');
+    return;
+  }
+
+  const transcript = document.getElementById('transcriptText').value.trim();
+  if (!transcript) {
+    showStatus('articleStatus', '文字起こしテキストがありません', 'error');
+    return;
+  }
+
+  const prompt = document.getElementById('promptText').value;
+  const extra = document.getElementById('extraInstruction').value.trim();
+  const fullPrompt = prompt + (extra ? `\n\n追加の指示: ${extra}` : '') + `\n\n---\n\n${transcript}`;
+
+  const btn = document.getElementById('articleBtn');
+  btn.disabled = true;
+  document.getElementById('articleProgress').classList.add('show');
+  hideStatus('articleStatus');
+
+  try {
+    let result = '';
+    if (llm === 'openai') {
+      result = await callOpenAI(key, fullPrompt);
+    } else if (llm === 'claude') {
+      result = await callClaude(key, fullPrompt);
+    } else if (llm === 'gemini') {
+      result = await callGemini(key, fullPrompt);
+    }
+
+    document.getElementById('resultContent').textContent = result;
+    document.getElementById('resultArea').classList.add('show');
+    showStatus('articleStatus', '記事を生成しました', 'success');
+    document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    showStatus('articleStatus', `エラー: ${err.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('articleProgress').classList.remove('show');
+  }
+}
+
+async function callOpenAI(key, prompt) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `OpenAI API Error: ${res.status}`);
+  }
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+async function callClaude(key, prompt) {
+  // Claude API requires CORS proxy or direct access
+  // Using anthropic API directly with dangerous-direct-browser-access header
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `Claude API Error: ${res.status}`);
+  }
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+async function callGemini(key, prompt) {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.7 }
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `Gemini API Error: ${res.status}`);
+  }
+  const data = await res.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+function regenerate() {
+  document.getElementById('resultArea').classList.remove('show');
+  generateArticle();
+}
+
+// ============================================
+// Utilities
+// ============================================
+function copyText(elementId) {
+  const el = document.getElementById(elementId);
+  const text = el.value || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('コピーしました');
+  });
+}
+
+function downloadResult() {
+  const text = document.getElementById('resultContent').textContent;
+  const blob = new Blob([text], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `article_${new Date().toISOString().slice(0, 10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function showStatus(id, message, type) {
+  const el = document.getElementById(id);
+  el.textContent = message;
+  el.className = `status-msg show ${type}`;
+}
+
+function hideStatus(id) {
+  document.getElementById(id).className = 'status-msg';
+}
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: white; padding: 10px 20px;
+    border-radius: 8px; font-size: 0.85rem; z-index: 1000;
+    animation: fadeInUp 0.3s ease;
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+// Add animation
+const style = document.createElement('style');
+style.textContent = `@keyframes fadeInUp { from { opacity:0; transform:translate(-50%,10px); } to { opacity:1; transform:translate(-50%,0); } }`;
+document.head.appendChild(style);
+
+// ============================================
+// Init
+// ============================================
+initKeys();
+updatePrompt();
+</script>
+
+</body>
+</html>
