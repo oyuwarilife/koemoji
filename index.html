@@ -1055,7 +1055,7 @@ async function transcribeWithGemini(key) {
       contents: [{
         parts: [
           { inlineData: { mimeType, data: base64 } },
-          { text: 'この音声を日本語で文字起こししてください。話し言葉をそのまま正確にテキスト化してください。余計な説明や前置きは不要です。文字起こし結果のみを出力してください。' }
+          { text: 'この音声を日本語で文字起こししてください。フィラー（あー、えー、うーん、えーと等）は除去してください。話し言葉の内容は正確に残しつつ、余計な説明や前置きは不要です。文字起こし結果のみを出力してください。' }
         ]
       }],
       generationConfig: { temperature: 0.1 }
