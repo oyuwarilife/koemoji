@@ -4,6 +4,10 @@
 
 音声ファイルをアップロードするだけで、文字起こし→記事化まで一気に変換できるWebツールです。
 
+## 🔗 デモ
+
+**[こえもじ を使ってみる →](https://oyuwarilife.github.io/koemoji/)**
+
 ## 機能
 
 - **音声入力**: ファイルアップロード（ドラッグ&ドロップ）/ ブラウザ録音 / 動画ファイル対応
@@ -38,3 +42,15 @@ MP3, WAV, M4A, OGG, WebM, MP4
 
 - APIキーはブラウザのlocalStorageにのみ保存されます
 - 音声データ・テキストは各APIに直接送信され、このツール側にサーバーはありません
+
+## 関連プロジェクト
+
+| プロジェクト | 説明 |
+|---|---|
+| [context-engine](https://github.com/oyuwarilife/context-engine) | AIエージェント向けコンテキスト管理ツール |
+| [katsu-celebration](https://github.com/oyuwarilife/katsu-celebration) | ポモ活スタンプシート |
+| [sns-post-generator](https://github.com/oyuwarilife/sns-post-generator) | SNS投稿ジェネレーター |
+
+## 作者
+
+[@oyuwarilife](https://github.com/oyuwarilife)
